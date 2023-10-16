@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const eventCategorySchema = new mongoose.Schema({
     categoryID: {
         type: mongoose.Schema.Types.ObjectId,

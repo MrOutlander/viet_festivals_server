@@ -3,6 +3,9 @@ import * as dotenv from 'dotenv'
 import cors from 'cors'
 
 import connectDB from "./mongodb/connect.js";
+import userRouter from './routes/user.routes.js'
+import eventsRouter from './routes/events.routes.js'
+
 
 dotenv.config();
 
@@ -13,6 +16,9 @@ app.use(express.json({ limit: '50mb' }));
 app.get('/', (req, res) => {
     res.send({ message: 'Good Morning Vietanm!!!'})
 })
+
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/events', eventsRouter);
 
 const startServer = async () => {
     try {

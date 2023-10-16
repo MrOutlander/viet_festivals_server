@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const adminUserSchema = new mongoose.Schema({
     adminUserID: {
         type: mongoose.Schema.Types.ObjectId,
