@@ -5,6 +5,7 @@ import cors from 'cors'
 import connectDB from "./mongodb/connect.js";
 import userRouter from './routes/user.routes.js'
 import eventsRouter from './routes/events.routes.js'
+import eventCategoryRouter from './routes/eventCategories.routes.js'
 import adminUserRouter from './routes/adminUser.routes.js'
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/adminusers', adminUserRouter);
 app.use('/api/v1/events', eventsRouter);
+app.use('/api/v1/eventcategory', eventCategoryRouter);
 
 const startServer = async () => {
     try {

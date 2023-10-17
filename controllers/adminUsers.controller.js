@@ -6,26 +6,23 @@ import AdminUser from '../mongodb/models/adminUsers.js';
 const getAllAdminUsers = async (req, res) => {};
 const createAdminUser = async (req, res) => {
     try {
-        const { name, email, /*password,*/ avatar } = req.body;
+        const { name, email, avatar } = req.body;
 
-        const adminUserExists = await AdminUser.findOne({ email });
+        let adminUser = await AdminUser.findOne({ email });
 
-        if(adminUserExists) {
-            return res.status(400).json({ message: 'User with this email already exists' });
+        if (!adminUser) {
+            adminUser = new AdminUser({
+                name,
+                email,
+                avatar,
+            });
+            await adminUser.save();
         }
 
-        // const hashedPassword = await bcrypt.hash(password, 10);
-        const newAdminUser = await AdminUser.create({ 
-            name,
-            email,
-            // password: hashedPassword,
-            avatar,
-        });
-
-        res.status(200).json(newAdminUser);
-
+        return res.status(200).json(adminUser);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 

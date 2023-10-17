@@ -1,6 +1,6 @@
-import Event from '../mongodb/models/events.js'
+import EventCategory from '../mongodb/models/events.js'
 
-const getAllEvents = async (req, res) => {
+const getAllEventCategories = async (req, res) => {
     try {
         const events = await EventCategory.find();
         res.status(200).json(events);
@@ -9,7 +9,7 @@ const getAllEvents = async (req, res) => {
     }    
 };
 
-const getEventDetails = async (req, res) => {
+const getEventCategoriesDetails = async (req, res) => {
     try {
         const event = await EventCategory.findById(req.params.id);
         if (!event) {
@@ -21,7 +21,7 @@ const getEventDetails = async (req, res) => {
     }    
 };
 
-const createEvent = async (req, res) => {
+const createEventCategory = async (req, res) => {
     try {
         const newEvent = new EventCategory(req.body);
         const savedEvent = await newEvent.save();
@@ -31,7 +31,7 @@ const createEvent = async (req, res) => {
     }
 };
 
-const editEvent = async (req, res) => {
+const editEventCategory = async (req, res) => {
     try {
         const updatedEvent = await EventCategory.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!updatedEvent) {
@@ -42,7 +42,7 @@ const editEvent = async (req, res) => {
         res.status(500).json({ message: "Error updating event", error });
     }
 };
-const deleteEvent = async (req, res) => {
+const deleteEventCategory = async (req, res) => {
     try {
         const deletedEvent = await EventCategory.findByIdAndDelete(req.params.id);
         if (!deletedEvent) {
@@ -55,9 +55,9 @@ const deleteEvent = async (req, res) => {
 };
 
 export {
-    getAllEvents,
-    getEventDetails,
-    createEvent,
-    editEvent,
-    deleteEvent,
+    getAllEventCategories,
+    getEventCategoriesDetails,
+    createEventCategory,
+    editEventCategory,
+    deleteEventCategory,
 }
