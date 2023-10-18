@@ -1,5 +1,3 @@
-// import bcrypt from 'bcrypt';
-
 import AdminUser from '../mongodb/models/adminUsers.js';
 
 

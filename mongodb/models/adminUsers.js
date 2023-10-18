@@ -13,10 +13,6 @@ const adminUserSchema = new mongoose.Schema({
         type: String,
         unique: true,
     },
-    // password: {
-    //     type: String,
-    //     required: true,
-    // },
     avatar: {
         type: String,
         default: "", // or a default avatar URL if you have one

@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-    userID: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: new mongoose.Types.ObjectId(),
-    },
+    // userID: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     default: new mongoose.Types.ObjectId(),
+    // },
     userName: {
         type: String,
         required: true,
@@ -17,13 +17,31 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+        validate: {
+            validator: function(email) {
+                // Regular expression for basic email validation
+                const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+                return emailRegex.test(email);
+            },
+            message: props => `${props.value} is not a valid email address!`
+        }
     },
-    password: {
+    dateOfBirth: {
+        type: Date,
+        required: false, // Not mandatory
+        default: null,
+    },
+    avatar: {
         type: String,
-        required: true,
+        required: false, // Not mandatory
+        default: null,
     },
-});
+    }, 
+    {
+        timestamps: true
+    }
+);
 
-const UserModel = mongoose.model('User', userSchema);
+const User = mongoose.model('Users', userSchema);
 
-export default UserModel;
+export default User;

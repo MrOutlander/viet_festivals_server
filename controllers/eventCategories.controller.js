@@ -1,4 +1,4 @@
-import EventCategory from '../mongodb/models/events.js'
+import EventCategory from '../mongodb/models/eventCategories.js'
 
 const getAllEventCategories = async (req, res) => {
     try {
@@ -23,11 +23,17 @@ const getEventCategoriesDetails = async (req, res) => {
 
 const createEventCategory = async (req, res) => {
     try {
-        const newEvent = new EventCategory(req.body);
-        const savedEvent = await newEvent.save();
-        res.status(201).json(savedEvent);
+        const existingEventCategory = await EventCategory.findOne({ categoryName: req.body.categoryName }); // Assuming "name" is the unique identifier for the category
+
+        if (existingEventCategory) {
+            return res.status(400).json({ message: "Event Category already exists" });
+        }
+
+        const newCategory = new EventCategory(req.body);
+        const savedCategory = await newCategory.save();
+        res.status(201).json(savedCategory);
     } catch (error) {
-        res.status(500).json({ message: "Error creating event", error });
+        res.status(500).json({ message: "Error creating Category", error });
     }
 };
 
