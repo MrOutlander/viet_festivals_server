@@ -1,10 +1,6 @@
 import mongoose from "mongoose";
 
 const eventSchema = new mongoose.Schema({
-    eventID: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: new mongoose.Types.ObjectId(),
-    },
     eventName: {
         type: String,
         required: true,
@@ -32,14 +28,24 @@ const eventSchema = new mongoose.Schema({
         String
     ],
     geolocation: {
-      latitude: Number,
-      longitude: Number
+        type: {
+            type: String,
+            enum: ['Point'], // 'location.type' must be 'Point'
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
     },
     externalSources: {
         type: String,
         required: true,
     },
-  });
+});
+
+// Add a 2dsphere index to the geolocation field
+eventSchema.index({ geolocation: '2dsphere' });
 
 const Event = mongoose.model('Event', eventSchema);
 

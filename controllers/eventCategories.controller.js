@@ -1,5 +1,6 @@
 import EventCategory from '../mongodb/models/eventCategories.js'
 
+// TO SHOW A LIST OF CATEGORIES (WORKS WITH LIST)
 const getAllEventCategories = async (req, res) => {
     try {
         const events = await EventCategory.find();
@@ -7,8 +8,10 @@ const getAllEventCategories = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Error fetching events", error });
     }    
-};
+}; //THIS WORKS
 
+
+// TO GET THE DETAILS OF THE CATEGORY (WORKS WITH SHOW)
 const getEventCategoriesDetails = async (req, res) => {
     try {
         const event = await EventCategory.findById(req.params.id);
@@ -19,8 +22,10 @@ const getEventCategoriesDetails = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Error fetching event details", error });
     }    
-};
+}; //THIS WORKS
 
+
+// TO CREATE A NEW CATEGORY (WORKS WITH CREATE)
 const createEventCategory = async (req, res) => {
     try {
         const existingEventCategory = await EventCategory.findOne({ categoryName: req.body.categoryName }); // Assuming "name" is the unique identifier for the category
@@ -35,8 +40,9 @@ const createEventCategory = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Error creating Category", error });
     }
-};
+}; //THIS WORKS
 
+// TO EDIT THE CATEGORY
 const editEventCategory = async (req, res) => {
     try {
         const updatedEvent = await EventCategory.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -47,7 +53,9 @@ const editEventCategory = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Error updating event", error });
     }
-};
+}; //THIS WORKS
+
+// TO DELETE THE CATEGORY
 const deleteEventCategory = async (req, res) => {
     try {
         const deletedEvent = await EventCategory.findByIdAndDelete(req.params.id);
@@ -58,7 +66,7 @@ const deleteEventCategory = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Error deleting event", error });
     }
-};
+}; //THIS WORKS
 
 export {
     getAllEventCategories,

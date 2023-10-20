@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/adminusers', adminUserRouter);
+app.use('/api/v1/admin_users', adminUserRouter);
 app.use('/api/v1/events', eventsRouter);
 app.use('/api/v1/event_category', eventCategoryRouter);
 

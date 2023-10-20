@@ -1,10 +1,6 @@
 import mongoose from "mongoose";
 
 const eventCategorySchema = new mongoose.Schema({
-    categoryID: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: new mongoose.Types.ObjectId(),
-    },
     categoryName: {
         type: String,
         required: true,
@@ -13,7 +9,16 @@ const eventCategorySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-  });
+    thumb: {
+        type: String,
+        required: false, // Not mandatory
+        default: null,
+    },
+    }, 
+    {
+        timestamps: true
+    }
+);
   
 const EventCategory = mongoose.model('EventCategory', eventCategorySchema);
   

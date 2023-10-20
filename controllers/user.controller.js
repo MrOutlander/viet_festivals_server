@@ -1,5 +1,6 @@
 import User from "../mongodb/models/users.js";
 
+// TO GET A LIST OF USERS
 const getAllUsers = async (req, res) => {
     try {
         const users = await User.find();
@@ -25,8 +26,21 @@ const createUser = async (req, res) => {
     }
 }; //THIS IS WORKING
 
-const editUser = async (req, res) => {};
+// TO EDIT USERS
+const editUser = async (req, res) => {
+    try {
+        const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ message: "Error updating user", error });
+    }
+}; // THIS WORKS
 
+
+// TO DELETE USERS
 const deleteUser = async (req, res) => {
     try {
         const userToDelete = await User.findById(req.params.id);
@@ -43,10 +57,10 @@ const deleteUser = async (req, res) => {
     }
 }; //THIS IS WORKING
 
-
+// TO GET USER INFO
 const getUserInfoByID = async (req, res) => {
     try {
-        const user = await User.findById({ userID: req.params.id });
+        const user = await User.findById(req.params.id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -54,7 +68,7 @@ const getUserInfoByID = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Error fetching User details", error });
     }    
-};
+}; //THIS WORKS
 
 export {
     getAllUsers,
