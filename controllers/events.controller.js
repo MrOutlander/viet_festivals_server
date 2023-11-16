@@ -94,10 +94,69 @@ const deleteEvent = async (req, res) => {
     }
 }; //THIS WORKS
 
+
+
+// FUNCTIONS SPECIFIC FOR THE MOBILE APP
+
+const getAllEventsMobile = async (req, res) => {   
+    
+    try {
+        const userLocation = {
+            type: "Point",
+            coordinates: [req.body.longitude, req.body.latitude] // [longitude, latitude]
+        };
+
+        const events = await Event.aggregate([
+            {
+                $geoNear: {
+                    near: userLocation,
+                    distanceField: "distance", // This will add a 'distance' field to each document
+                    spherical: true,
+                }
+            },
+            {
+                $lookup: {
+                    from: "eventcategories", // This should be the name of the EventCategory collection in MongoDB
+                    localField: "eventType",
+                    foreignField: "_id",
+                    as: "eventType"
+                }
+            },
+            {
+                $unwind: "$eventType"
+            },
+            {
+                $project: {
+                    // Include fields you want to send in the response
+                    eventName: 1,
+                    eventDate: 1,
+                    eventSummary: 1,
+                    bestToAttend: 1,
+                    thumb: 1,
+                    images: 1,
+                    geolocation: 1,
+                    externalSources: 1,
+                    eventType: "$eventType.categoryName",
+                    distance: 1
+                }
+            }
+        ]);
+
+        res.status(200).json(events);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching events", error });
+    }
+};
+
+
+
 export {
     getAllEvents,
     getEventDetails,
     createEvent,
     editEvent,
     deleteEvent,
+    
+    // MOBILE APP CALLS
+    getAllEventsMobile,
 }
