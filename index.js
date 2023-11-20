@@ -13,12 +13,12 @@ dotenv.config();
 const app = express();
 
 //IF THE APP IN THE BROWSER STOPS WORKING, REMOVE THIS AND "corsOptions" INSIDE CORS
-const corsOptions = {
-    origin: ['http://192.168.0.14:8081',  'http://localhost:5173'], // replace with your frontend port number
-    optionsSuccessStatus: 200 
-}
+// const corsOptions = {
+//     origin: ['http://192.168.0.14:8081',  'http://localhost:5173'], // replace with your frontend port number
+//     optionsSuccessStatus: 200 
+// }
 
-app.use(cors(corsOptions));
+app.use(cors(/*corsOptions*/));
 app.use(express.json({ limit: '50mb' }));
 
 app.get('/', (req, res) => {

@@ -4,11 +4,16 @@ const eventSchema = new mongoose.Schema({
     eventName: {
         type: String,
         required: true,
+        unique: true,
     },
     eventType: { 
         type: mongoose.Schema.Types.ObjectId, ref: 'EventCategory' 
     },
     eventDate: {
+        type: Date, // Use the Date type for eventDate
+        required: true,
+    },
+    eventBrief: {
         type: String,
         required: true,
     },
@@ -19,6 +24,18 @@ const eventSchema = new mongoose.Schema({
     bestToAttend: {
         type: String,
         required: true,
+    },
+    foodAndTraditions: {
+        type: [String],
+        required: true
+    },
+    typicalCelebrations: {
+        type: String,
+        required: true,
+    },
+    languageCorner: {
+        type: [String],
+        required: true
     },
     thumb: {
         type: String,

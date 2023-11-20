@@ -1,10 +1,6 @@
 import mongoose from "mongoose";
 
 const adminUserSchema = new mongoose.Schema({
-    UserID: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: new mongoose.Types.ObjectId(),
-    },
     name: {
         type: String,
         required: true,

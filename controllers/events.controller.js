@@ -2,8 +2,23 @@ import Event from '../mongodb/models/events.js'
 import EventCategory from '../mongodb/models/eventCategories.js';
 
 const getAllEvents = async (req, res) => {
+    const { _order = 'asc', _sort = 'eventDate', eventName_like = '', eventType = '' } = req.query;
+
+    const query = {};
+
+    if(eventType !== '') {
+        query.eventType = eventType;
+    
+    }
+    if(eventName_like) {
+        query.eventName = { $regex: eventName_like, $options: 'i'};
+    }
+
+    const sortOrder = _order === 'desc' ? -1 : 1; // 'desc' for descending, otherwise ascending
+
     try {
-        const events = await Event.find()
+        const events = await Event.find(query)
+                                .sort({ [_sort]: sortOrder })
                                 .populate({
                                     path: 'eventType',
                                     select: 'categoryName'
@@ -101,12 +116,39 @@ const deleteEvent = async (req, res) => {
 const getAllEventsMobile = async (req, res) => {   
     
     try {
+        // Default startDate to current date to ensure only future events are considered
+        const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date();
+        let endDate = req.query.endDate ? new Date(req.query.endDate) : null;
+
+        // Set the time to the start of the current day
+        startDate.setHours(0, 0, 0, 0);
+
+        // If endDate is provided, ensure it's not set in the past relative to startDate
+        if (endDate && endDate < startDate) {
+            endDate = null;
+        }
+
+        // Construct the match query
+        const matchQuery = {
+            eventDate: { $gte: startDate }
+        };
+        // Add the upper range for date if endDate is provided
+        if (endDate) {
+            endDate.setHours(23, 59, 59, 999); // Set time to the end of the day for endDate
+            matchQuery.eventDate.$lte = endDate;
+        }
+
         const userLocation = {
             type: "Point",
             coordinates: [req.body.longitude, req.body.latitude] // [longitude, latitude]
         };
 
         const events = await Event.aggregate([
+            {
+                $match: {
+                    eventDate: { $gte: currentDate } // This allows only future events
+                }
+            },
             {
                 $geoNear: {
                     near: userLocation,

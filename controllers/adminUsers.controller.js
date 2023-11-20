@@ -14,36 +14,43 @@ const getAllAdminUsers = async (req, res) => {
 
 const createAdminUser = async (req, res) => {
     // try {
-    //     const { name, email, avatar } = req.body;
+    //     const existingAdminUser = await AdminUser.findOne({ email: req.body.email }); 
 
-    //     let adminUser = await AdminUser.findOne({ email });
-
-    //     if (!adminUser) {
-    //         adminUser = new AdminUser({
-    //             name,
-    //             email,
-    //             avatar,
-    //         });
-    //         await adminUser.save();
+    //     if (existingAdminUser) {
+    //         return res.status(400).json({ message: "Admin User already exists" });
     //     }
 
-    //     return res.status(200).json(adminUser);
+    //     const newAdminUser = new AdminUser(req.body);
+    //     const savedAdminUser = await newAdminUser.save();
+    //     res.status(201).json(savedAdminUser);
     // } catch (error) {
-    //     console.error(error);
-    //     return res.status(500).json({ message: 'Internal server error' });
+    //     res.status(500).json({ message: "Error creating Admin User", error });
     // }
+
     try {
-        const existingAdminUser = await AdminUser.findOne({ email: req.body.email }); 
+        const { name, email, avatar } = req.body;
+        
+        // Check if the user already exists
+        let adminUser = await AdminUser.findOne({ email });
+        
+        // If the user exists, log them in instead of creating a new user
+        if (adminUser) {
+            // Perform any login operations here if needed
+            // For example, generate a token, update last login date, etc.
 
-        if (existingAdminUser) {
-            return res.status(400).json({ message: "Admin User already exists" });
+            // Respond with the existing user
+            return res.status(200).json(adminUser);
+        } else {
+            // If the user does not exist, create a new user
+            adminUser = new AdminUser({ name, email, avatar });
+            await adminUser.save();
+
+            // Respond with the newly created user
+            return res.status(201).json(adminUser);
         }
-
-        const newAdminUser = new AdminUser(req.body);
-        const savedAdminUser = await newAdminUser.save();
-        res.status(201).json(savedAdminUser);
     } catch (error) {
-        res.status(500).json({ message: "Error creating Admin User", error });
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
