@@ -16,7 +16,7 @@ const app = express();
 
 // IF THE APP IN THE BROWSER STOPS WORKING, REMOVE THIS AND "corsOptions" INSIDE CORS
 const corsOptions = {
-    origin: ['http://192.168.0.14:8081',  'http://localhost:5173'], // replace with your frontend port number
+    origin: ['http://192.168.0.14:8081',  'http://localhost:5173', 'https://zingy-gaufre-59424b.netlify.app/'], // replace with your frontend port number
     optionsSuccessStatus: 200 
 }
 
