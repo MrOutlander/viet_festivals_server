@@ -227,6 +227,21 @@ const getAllEventsMobile = async (req, res) => {
                 $unwind: "$eventType"
             },
             {
+                $project: {
+                    // Include fields you want to send in the response
+                    eventName: 1,
+                    eventDate: 1,
+                    eventSummary: 1,
+                    bestToAttend: 1,
+                    thumb: 1,
+                    images: 1,
+                    geolocation: 1,
+                    externalSources: 1,
+                    eventType: "$eventType.categoryName",
+                    distance: 1
+                }
+            },
+            {
                 $sort: { distance: 1 } // Sort by distance ascending (closest first)
             }
         ]);
