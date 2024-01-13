@@ -216,6 +216,17 @@ const getAllEventsMobile = async (req, res) => {
                 }
             },
             {
+                $lookup: {
+                    from: "eventcategories", // This should be the name of the EventCategory collection in MongoDB
+                    localField: "eventType",
+                    foreignField: "_id",
+                    as: "eventType"
+                }
+            },
+            {
+                $unwind: "$eventType"
+            },
+            {
                 $sort: { distance: 1 } // Sort by distance ascending (closest first)
             }
         ]);
