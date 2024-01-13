@@ -192,10 +192,17 @@ const deleteEvent = async (req, res) => {
 
 const getAllEventsMobile = async (req, res) => {
     try {
-        const startDate = new Date();
+        // Default startDate to current date to ensure only future events are considered
+        const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date();
+        let endDate = req.query.endDate ? new Date(req.query.endDate) : null;
+
+        // Set the time to the start of the current day
         startDate.setHours(0, 0, 0, 0);
-        const events = await Event.find({ eventDate: { $gte: startDate } });
-        res.status(200).json(events);
+
+        // If endDate is provided, ensure it's not set in the past relative to startDate
+        if (endDate && endDate < startDate) {
+            endDate = null;
+        }
     } catch (error) {
         console.error("Error in getAllEventsMobile:", error);
         res.status(500).json({ message: "Error fetching events", error: error.message });
