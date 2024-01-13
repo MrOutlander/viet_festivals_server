@@ -113,82 +113,125 @@ const deleteEvent = async (req, res) => {
 
 // FUNCTIONS SPECIFIC FOR THE MOBILE APP
 
-const getAllEventsMobile = async (req, res) => {   
+// const getAllEventsMobile = async (req, res) => {   
     
+//     try {
+//         // Default startDate to current date to ensure only future events are considered
+//         const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date();
+//         let endDate = req.query.endDate ? new Date(req.query.endDate) : null;
+
+//         // Set the time to the start of the current day
+//         startDate.setHours(0, 0, 0, 0);
+
+//         // If endDate is provided, ensure it's not set in the past relative to startDate
+//         if (endDate && endDate < startDate) {
+//             endDate = null;
+//         }
+
+//         // Construct the match query
+//         const matchQuery = {
+//             eventDate: { $gte: startDate }
+//         };
+//         // Add the upper range for date if endDate is provided
+//         if (endDate) {
+//             endDate.setHours(23, 59, 59, 999); // Set time to the end of the day for endDate
+//             matchQuery.eventDate.$lte = endDate;
+//         }
+
+//         const userLocation = {
+//             type: "Point",
+//             coordinates: [req.body.longitude, req.body.latitude] // [longitude, latitude]
+//         };
+
+//         const events = await Event.aggregate([
+//             {
+//                 $match: {
+//                     eventDate: { $gte: currentDate } // This allows only future events
+//                 }
+//             },
+//             {
+//                 $geoNear: {
+//                     near: userLocation,
+//                     distanceField: "distance", // This will add a 'distance' field to each document
+//                     spherical: true,
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "eventcategories", // This should be the name of the EventCategory collection in MongoDB
+//                     localField: "eventType",
+//                     foreignField: "_id",
+//                     as: "eventType"
+//                 }
+//             },
+//             {
+//                 $unwind: "$eventType"
+//             },
+//             {
+//                 $project: {
+//                     // Include fields you want to send in the response
+//                     eventName: 1,
+//                     eventDate: 1,
+//                     eventSummary: 1,
+//                     bestToAttend: 1,
+//                     thumb: 1,
+//                     images: 1,
+//                     geolocation: 1,
+//                     externalSources: 1,
+//                     eventType: "$eventType.categoryName",
+//                     distance: 1
+//                 }
+//             }
+//         ]);
+
+//         res.status(200).json(events);
+//     } catch (error) {
+//         res.status(500).json({ message: "Error fetching events", error });
+//     }
+// };
+
+const getAllEventsMobile = async (req, res) => {
     try {
-        // Default startDate to current date to ensure only future events are considered
-        const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date();
-        let endDate = req.query.endDate ? new Date(req.query.endDate) : null;
-
-        // Set the time to the start of the current day
-        startDate.setHours(0, 0, 0, 0);
-
-        // If endDate is provided, ensure it's not set in the past relative to startDate
-        if (endDate && endDate < startDate) {
-            endDate = null;
+        // Validate request body for latitude and longitude
+        if (!req.body.latitude || !req.body.longitude) {
+            return res.status(400).json({ message: "Missing latitude or longitude in request body" });
         }
 
-        // Construct the match query
-        const matchQuery = {
-            eventDate: { $gte: startDate }
-        };
-        // Add the upper range for date if endDate is provided
-        if (endDate) {
-            endDate.setHours(23, 59, 59, 999); // Set time to the end of the day for endDate
-            matchQuery.eventDate.$lte = endDate;
-        }
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0); // Set to the start of the current day
 
-        const userLocation = {
-            type: "Point",
-            coordinates: [req.body.longitude, req.body.latitude] // [longitude, latitude]
-        };
+        const userCoordinates = [req.body.longitude, req.body.latitude];
 
         const events = await Event.aggregate([
             {
-                $match: {
-                    eventDate: { $gte: currentDate } // This allows only future events
-                }
-            },
-            {
                 $geoNear: {
-                    near: userLocation,
-                    distanceField: "distance", // This will add a 'distance' field to each document
-                    spherical: true,
+                    near: { type: "Point", coordinates: userCoordinates },
+                    distanceField: "distance",
+                    spherical: true
                 }
             },
             {
-                $lookup: {
-                    from: "eventcategories", // This should be the name of the EventCategory collection in MongoDB
-                    localField: "eventType",
-                    foreignField: "_id",
-                    as: "eventType"
+                $match: {
+                    eventDate: { $gte: currentDate }
                 }
             },
             {
-                $unwind: "$eventType"
-            },
-            {
-                $project: {
-                    // Include fields you want to send in the response
-                    eventName: 1,
-                    eventDate: 1,
-                    eventSummary: 1,
-                    bestToAttend: 1,
-                    thumb: 1,
-                    images: 1,
-                    geolocation: 1,
-                    externalSources: 1,
-                    eventType: "$eventType.categoryName",
-                    distance: 1
-                }
+                $sort: { distance: 1 } // Sort by distance ascending (closest first)
             }
         ]);
 
         res.status(200).json(events);
     } catch (error) {
-        res.status(500).json({ message: "Error fetching events", error });
+        console.error("Error in getAllEventsMobile:", error);
+        // Send more detailed error information for debugging
+        res.status(500).json({
+            message: "Error fetching events",
+            error: error.message,
+            stack: error.stack // Include stack trace for deeper insight
+        });
     }
 };
+
 
 
 
