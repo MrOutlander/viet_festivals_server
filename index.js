@@ -16,8 +16,18 @@ const app = express();
 
 // IF THE APP IN THE BROWSER STOPS WORKING, REMOVE THIS AND "corsOptions" INSIDE CORS
 const corsOptions = {
-    origin: ['http://192.168.0.14:8081',  'http://localhost:5173', 'https://zingy-gaufre-59424b.netlify.app'], // replace with your frontend port number
-    optionsSuccessStatus: 200 
+    // origin: ['http://192.168.0.14:8081',  'http://localhost:5173', 'https://zingy-gaufre-59424b.netlify.app'], // replace with your frontend port number
+    // optionsSuccessStatus: 200 
+    origin: function (origin, callback) {
+        const allowedOrigins = ['https://zingy-gaufre-59424b.netlify.app', 'http://82.7.165.34'];
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    optionsSuccessStatus: 200
+
 }
 
 app.use(cors(corsOptions));
