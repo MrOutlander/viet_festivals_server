@@ -190,17 +190,17 @@ const deleteEvent = async (req, res) => {
 //     }
 // };
 
-const getAllEventsMobile = async (req, res) => {   
+const getAllEventsMobile = async (req, res) => {
     try {
-        // Basic database query without filters
-        const events = await Event.find();
+        const startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
+        const events = await Event.find({ eventDate: { $gte: startDate } });
         res.status(200).json(events);
     } catch (error) {
         console.error("Error in getAllEventsMobile:", error);
         res.status(500).json({ message: "Error fetching events", error: error.message });
     }
 };
-
 
 
 
