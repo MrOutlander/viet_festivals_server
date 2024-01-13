@@ -192,13 +192,15 @@ const deleteEvent = async (req, res) => {
 
 const getAllEventsMobile = async (req, res) => {   
     try {
-        // Static response for testing
-        res.status(200).json({ message: "Static response for testing" });
+        // Basic database query without filters
+        const events = await Event.find();
+        res.status(200).json(events);
     } catch (error) {
         console.error("Error in getAllEventsMobile:", error);
         res.status(500).json({ message: "Error fetching events", error: error.message });
     }
 };
+
 
 
 
