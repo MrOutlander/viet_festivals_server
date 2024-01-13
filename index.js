@@ -19,15 +19,20 @@ const corsOptions = {
     // origin: ['http://192.168.0.14:8081',  'http://localhost:5173', 'https://zingy-gaufre-59424b.netlify.app'], // replace with your frontend port number
     // optionsSuccessStatus: 200 
     origin: function (origin, callback) {
-        const allowedOrigins = ['https://zingy-gaufre-59424b.netlify.app', 'http://82.7.165.34'];
-        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-            callback(null, true);
+        if (origin === undefined) { // When request is from a mobile app
+          callback(null, true);
         } else {
+          // existing logic for web origins
+          const allowedOrigins = ['https://zingy-gaufre-59424b.netlify.app'];
+          if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+          } else {
             callback(new Error('Not allowed by CORS'));
+          }
         }
     },
+    allowedHeaders: ['X-App-Client', 'Content-Type', 'Authorization'], // include your custom header here
     optionsSuccessStatus: 200
-
 }
 
 app.use(cors(corsOptions));
