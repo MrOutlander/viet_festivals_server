@@ -25,8 +25,7 @@ const createUser = async (req, res) => {
             password: hashedPassword // Store the hashed password instead of the plain one
         });
 
-        const newUser = new User(req.body);
-        const savedUser = await newUser.save();
+        const newUser = await user.save();
         res.status(201).json(savedUser);
     } catch (error) {
         res.status(500).json({ message: "Error creating User", error });
