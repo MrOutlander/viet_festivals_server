@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/admin_users', adminUserRouter);
-app.use('/api/v1/bookmarkedEvents', bookmarkedEventsRouter);
+app.use('/api/v1/bookmarked_Events', bookmarkedEventsRouter);
 app.use('/api/v1/events', eventsRouter);
 app.use('/api/v1/event_category', eventCategoryRouter);
 app.get('/api/config', (req, res) => {
