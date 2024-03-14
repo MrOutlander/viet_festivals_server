@@ -1,4 +1,5 @@
 import User from "../mongodb/models/users.js";
+import bcrypt from 'bcrypt';
 
 // TO GET A LIST OF USERS
 const getAllUsers = async (req, res) => {
@@ -17,6 +18,12 @@ const createUser = async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: "User already exists" });
         }
+        const salt = await bcrypt.genSalt(10); // 10 rounds is recommended
+        const hashedPassword = await bcrypt.hash(req.body.password, salt);
+        const user = new User({
+            ...req.body,
+            password: hashedPassword // Store the hashed password instead of the plain one
+        });
 
         const newUser = new User(req.body);
         const savedUser = await newUser.save();

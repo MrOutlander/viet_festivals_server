@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 const bookmarkedEventsSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    events: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }]
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    event: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true }
   });
   
 const BookmarkedEvent = mongoose.model('BookmarkedEvent', bookmarkedEventsSchema);
