@@ -6,7 +6,7 @@ const generateToken = (user) => {
         userName: user.userName, // Useful for display purposes
         userSurname: user.userSurname, // Useful for display purposes
         email: user.email, // Useful for display and contact purposes
-        dob: user.dateOfBirth,
+        dateOfBirth: user.dateOfBirth,
         avatar: user.avatar,
     }, process.env.JWT_SECRET, {
         expiresIn: '90d'
