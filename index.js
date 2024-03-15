@@ -54,9 +54,9 @@ app.get('/api/config', (req, res) => {
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
       cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET,
-      cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET_THUMB,
-      cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET_EVENTS,
-      cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET_USERTHUMBS,
+      cloudinaryUploadPresetThumb: process.env.CLOUDINARY_UPLOAD_PRESET_THUMB,
+      cloudinaryUploadPresetEvents: process.env.CLOUDINARY_UPLOAD_PRESET_EVENTS,
+      cloudinaryUploadPresetUserthumbs: process.env.CLOUDINARY_UPLOAD_PRESET_USERTHUMBS,
       baseUrl: process.env.API_BASE_URL,
       renderedData: process.env.RENDERED_DATA_URL,
     });
