@@ -22,7 +22,7 @@ const corsOptions = {
           callback(null, true);
         } else {
           // existing logic for web origins
-          const allowedOrigins = ['https://zingy-gaufre-59424b.netlify.app'];
+          const allowedOrigins = ['https://zingy-gaufre-59424b.netlify.app', 'http://localhost:5173/' ];
           if (allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
           } else {
@@ -54,6 +54,9 @@ app.get('/api/config', (req, res) => {
       googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
       cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET,
+      cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET_THUMB,
+      cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET_EVENTS,
+      cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET_USERTHUMBS,
       baseUrl: process.env.API_BASE_URL,
       renderedData: process.env.RENDERED_DATA_URL,
     });
