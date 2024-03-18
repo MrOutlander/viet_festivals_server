@@ -45,11 +45,7 @@ const editUser = async (req, res) => {
             req.body.password = await bcrypt.hash(req.body.password, salt);
         }
         res.status(200).json(updatedUser);
-        if (updatedUser) {
-            // Generate a new token with updated user info
-            const token = generateTokenWithUserInfo(updatedUser); // Implement this function based on your JWT setup
-            return res.status(200).json({ user: updatedUser, token });
-        }
+        //--------------------------------------------------------------
     } catch (error) {
         res.status(500).json({ message: "Error updating user", error });
     }
