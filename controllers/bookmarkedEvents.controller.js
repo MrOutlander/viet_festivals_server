@@ -102,7 +102,7 @@ const createBookmarkedEventMobile = async (req, res) => {
 const getBookmarkedEventsByUserId = async (req, res) => {
     try {
         const userId = req.params.userId; // Or use req.query.userId if you prefer to use query parameters
-        const bookmarkedEvent = await BookmarkedEvent.find({ user: userId }).populate('user')/*.populate('event')*/;
+        const bookmarkedEvent = await BookmarkedEvent.find({ user: userId })/*.populate('user')*/.populate('event');
         res.json(bookmarkedEvent);
     } catch (error) {
         res.status(500).json({ message: error.message });
