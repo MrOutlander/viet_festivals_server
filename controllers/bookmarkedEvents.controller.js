@@ -103,14 +103,19 @@ const getBookmarkedEventsByUserId = async (req, res) => {
     try {
         const userId = req.params.userId; // Or use req.query.userId if you prefer to use query parameters
         const bookmarkedEvent = await BookmarkedEvent.find({ user: userId })/*.populate('user')*/
-            // .populate('event');
+            // .populate({
+            //     path: 'event',
+            //     populate: {
+            //       path: 'eventType',
+            //       select: 'categoryName', // Adjust based on your schema
+            //     }
+            // })
+
             .populate({
-                path: 'event',
-                populate: {
-                  path: 'eventType',
-                  select: 'categoryName', // Adjust based on your schema
-                }
+                path: 'eventType',
+                select: 'categoryName'  // Only select the categoryName field
             })
+            .exec();
         res.json(bookmarkedEvent);
     } catch (error) {
         res.status(500).json({ message: error.message });
