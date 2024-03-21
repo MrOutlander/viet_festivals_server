@@ -67,3 +67,4 @@ eventSchema.index({ geolocation: '2dsphere' });
 const Event = mongoose.model('Event', eventSchema);
 
 export default Event;
+
