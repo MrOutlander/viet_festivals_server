@@ -57,6 +57,7 @@ app.get('/api/config', (req, res) => {
       cloudinaryUploadPresetThumb: process.env.CLOUDINARY_UPLOAD_PRESET_THUMB,
       cloudinaryUploadPresetEvents: process.env.CLOUDINARY_UPLOAD_PRESET_EVENTS,
       cloudinaryUploadPresetUserthumbs: process.env.CLOUDINARY_UPLOAD_PRESET_USERTHUMBS,
+      cloudinaryUploadPresetEventthumbs: process.env.CLOUDINARY_UPLOAD_PRESET_EVENTTHUMBS,
       baseUrl: process.env.API_BASE_URL,
       renderedData: process.env.RENDERED_DATA_URL,
     });
