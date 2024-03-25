@@ -315,7 +315,7 @@ const getAllEventsMap = async (req, res) => {
                 }
             },
             {
-                $unwind: "$eventTypeDetails" // Adjust according to your data structure; you might need to handle arrays differently
+                $unwind: "$eventType" // Adjust according to your data structure; you might need to handle arrays differently
             },
             {
                 $project: {
@@ -323,8 +323,16 @@ const getAllEventsMap = async (req, res) => {
                     eventName: 1,
                     eventDate: 1,
                     eventSummary: 1,
-                    eventType: "$eventTypeDetails.categoryName", // Adjust to use the populated event type details
-                    // Add other fields as needed
+                    bestToAttend: 1,
+                    eventBrief: 1,
+                    foodAndTraditions: 1,
+                    typicalCelebrations: 1,
+                    languageCorner: 1,
+                    thumb: 1,
+                    images: 1,
+                    geolocation: 1,
+                    externalSources: 1,
+                    eventType: "$eventType.categoryName",
                     distance: 1
                 }
             },
