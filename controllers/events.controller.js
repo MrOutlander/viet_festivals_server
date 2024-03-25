@@ -268,30 +268,31 @@ const getAllEventsMobile = async (req, res) => {
 
 const getAllEventsMap = async (req, res) => {
     try {
-        // Validate request body for latitude, longitude, and optionally for startDate and endDate
+        // Validate request body for latitude and longitude
         if (!req.body.latitude || !req.body.longitude) {
             return res.status(400).json({ message: "Missing latitude or longitude in request body" });
         }
 
         let startDate = new Date();
-        startDate.setHours(0, 0, 0, 0); // Default to the start of the current day if startDate not provided
+        startDate.setHours(0, 0, 0, 0); // Set to the start of the current day
 
         let endDate = req.body.endDate ? new Date(req.body.endDate) : null;
         if (endDate) {
             endDate.setHours(23, 59, 59, 999); // Set to the end of the day for endDate
         }
 
+        // Optional: Parse eventType from the request, if provided
+        const eventType = req.body.eventType;
+
         const userCoordinates = [req.body.longitude, req.body.latitude];
 
         const matchStage = {
             $match: {
-                eventDate: { $gte: startDate }
+                eventDate: { $gte: startDate },
+                ...(endDate && { eventDate: { $lte: endDate } }), // Conditionally include endDate in the match criteria
+                ...(eventType && { eventType: eventType }), // Conditionally include eventType in the match criteria
             }
         };
-
-        if (endDate) {
-            matchStage.$match.eventDate.$lte = endDate; // Add the upper bound for the date range if endDate is provided
-        }
 
         const events = await Event.aggregate([
             {
@@ -302,7 +303,34 @@ const getAllEventsMap = async (req, res) => {
                 }
             },
             matchStage,
-            // The rest of your aggregation pipeline remains unchanged
+            {
+                $sort: { distance: 1, eventDate: 1 } // Sort by distance first, then by date
+            },
+            {
+                $lookup: {
+                    from: "eventcategories", // This should be the name of the EventCategory collection in MongoDB
+                    localField: "eventType",
+                    foreignField: "_id",
+                    as: "eventType"
+                }
+            },
+            {
+                $unwind: "$eventTypeDetails" // Adjust according to your data structure; you might need to handle arrays differently
+            },
+            {
+                $project: {
+                    // Specify the fields you want to include in the response
+                    eventName: 1,
+                    eventDate: 1,
+                    eventSummary: 1,
+                    eventType: "$eventTypeDetails.categoryName", // Adjust to use the populated event type details
+                    // Add other fields as needed
+                    distance: 1
+                }
+            },
+            {
+                $sort: { distance: 1 } // Sort by distance again if needed
+            }
         ]);
 
         res.status(200).json(events);
