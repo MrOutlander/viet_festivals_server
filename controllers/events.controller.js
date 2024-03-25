@@ -13,6 +13,7 @@ const getAllEvents = async (req, res) => {
     if(eventName_like) {
         query.eventName = { $regex: eventName_like, $options: 'i'};
     }
+    
 
     const sortOrder = _order === 'desc' ? -1 : 1; // 'desc' for descending, otherwise ascending
 
@@ -265,6 +266,56 @@ const getAllEventsMobile = async (req, res) => {
     }
 };
 
+const getAllEventsMap = async (req, res) => {
+    try {
+        // Validate request body for latitude, longitude, and optionally for startDate and endDate
+        if (!req.body.latitude || !req.body.longitude) {
+            return res.status(400).json({ message: "Missing latitude or longitude in request body" });
+        }
+
+        let startDate = new Date();
+        startDate.setHours(0, 0, 0, 0); // Default to the start of the current day if startDate not provided
+
+        let endDate = req.body.endDate ? new Date(req.body.endDate) : null;
+        if (endDate) {
+            endDate.setHours(23, 59, 59, 999); // Set to the end of the day for endDate
+        }
+
+        const userCoordinates = [req.body.longitude, req.body.latitude];
+
+        const matchStage = {
+            $match: {
+                eventDate: { $gte: startDate }
+            }
+        };
+
+        if (endDate) {
+            matchStage.$match.eventDate.$lte = endDate; // Add the upper bound for the date range if endDate is provided
+        }
+
+        const events = await Event.aggregate([
+            {
+                $geoNear: {
+                    near: { type: "Point", coordinates: userCoordinates },
+                    distanceField: "distance",
+                    spherical: true
+                }
+            },
+            matchStage,
+            // The rest of your aggregation pipeline remains unchanged
+        ]);
+
+        res.status(200).json(events);
+    } catch (error) {
+        console.error("Error in getAllEventsMobile:", error);
+        res.status(500).json({
+            message: "Error fetching events",
+            error: error.message,
+            stack: error.stack
+        });
+    }
+};
+
 
 
 
@@ -277,4 +328,5 @@ export {
     
     // MOBILE APP CALLS
     getAllEventsMobile,
+    getAllEventsMap,
 }
