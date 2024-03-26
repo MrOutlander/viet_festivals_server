@@ -267,91 +267,7 @@ const getAllEventsMobile = async (req, res) => {
     }
 };
 
-const getAllEventsMap = async (req, res) => {
-    // try {
-    //     // Validate request body for latitude and longitude
-    //     if (!req.body.latitude || !req.body.longitude) {
-    //         return res.status(400).json({ message: "Missing latitude or longitude in request body" });
-    //     }
-
-    //     let startDate = new Date();
-    //     startDate.setHours(0, 0, 0, 0); // Set to the start of the current day
-
-    //     let endDate = req.body.endDate ? new Date(req.body.endDate) : null;
-    //     if (endDate) {
-    //         endDate.setHours(23, 59, 59, 999); // Set to the end of the day for endDate
-    //     }
-
-    //     // Optional: Parse eventType from the request, if provided
-    //     const eventType = req.body.eventType;
-
-    //     const userCoordinates = [req.body.longitude, req.body.latitude];
-
-    //     const matchStage = {
-    //         $match: {
-    //             eventDate: { $gte: startDate },
-    //             ...(endDate && { eventDate: { $lte: endDate } }), // Conditionally include endDate in the match criteria
-    //             ...(eventType && { eventType: eventType }), // Conditionally include eventType in the match criteria            
-    //         }
-    //     };
-
-    //     const events = await Event.aggregate([
-    //         {
-    //             $geoNear: {
-    //                 near: { type: "Point", coordinates: userCoordinates },
-    //                 distanceField: "distance",
-    //                 spherical: true
-    //             }
-    //         },
-    //         matchStage,
-    //         {
-    //             $sort: { distance: 1, eventDate: 1 } // Sort by distance first, then by date
-    //         },
-    //         {
-    //             $lookup: {
-    //                 from: "eventcategories", // This should be the name of the EventCategory collection in MongoDB
-    //                 localField: "eventType",
-    //                 foreignField: "_id",
-    //                 as: "eventType"
-    //             }
-    //         },
-    //         {
-    //             $unwind: "$eventType" // Adjust according to your data structure; you might need to handle arrays differently
-    //         },
-    //         {
-    //             $project: {
-    //                 // Specify the fields you want to include in the response
-    //                 eventName: 1,
-    //                 eventDate: 1,
-    //                 eventSummary: 1,
-    //                 bestToAttend: 1,
-    //                 eventBrief: 1,
-    //                 foodAndTraditions: 1,
-    //                 typicalCelebrations: 1,
-    //                 languageCorner: 1,
-    //                 thumb: 1,
-    //                 images: 1,
-    //                 geolocation: 1,
-    //                 externalSources: 1,
-    //                 eventType: "$eventType.categoryName",
-    //                 distance: 1
-    //             }
-    //         },
-    //         {
-    //             $sort: { distance: 1 } // Sort by distance again if needed
-    //         }
-    //     ]);
-
-    //     res.status(200).json(events);
-    // } catch (error) {
-    //     console.error("Error in getAllEventsMobile:", error);
-    //     res.status(500).json({
-    //         message: "Error fetching events",
-    //         error: error.message,
-    //         stack: error.stack
-    //     });
-    // } 
-    
+const getAllEventsMap = async (req, res) => {    
     try {
         if (!req.body.latitude || !req.body.longitude) {
             return res.status(400).json({ message: "Missing latitude or longitude in request body" });
@@ -412,14 +328,27 @@ const getAllEventsMap = async (req, res) => {
 
         const events = await Event.aggregate(pipeline)
 
-        const filteredEvents = events.map(event => {
-            return {
-                ...event, 
-                eventType: event.eventType.categoryName
-            };
-        });
+        // Get unique eventType IDs from the events
+        const eventTypeIds = [...new Set(events.map(event => event.eventType.toString()))];
 
-        res.json(filteredEvents);
+        // Fetch eventType names by their IDs
+        const eventTypes = await EventCategory.find({
+            '_id': { $in: eventTypeIds }
+        }).lean();
+
+        const eventTypeMapping = eventTypes.reduce((acc, curr) => {
+            acc[curr._id.toString()] = curr.categoryName; // Assuming categoryName is the field you want
+            return acc;
+        }, {});
+
+        // Populate eventType in events with the fetched names
+        const populatedEvents = events.map(event => ({
+            ...event,
+            eventType: eventTypeMapping[event.eventType.toString()] || event.eventType
+        }));
+
+        res.json(populatedEvents);
+        // res.json(filteredEvents);
     } catch (error) {
         console.error("Error in getAllEventsMap:", error);
         res.status(500).json({ message: error.message });
