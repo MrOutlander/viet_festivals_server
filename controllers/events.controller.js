@@ -365,8 +365,24 @@ const getAllEventsMap = async (req, res) => {
                 distanceField: "distance",
                 spherical: true
             }},
-            // { $match: { eventDate, eventType } },
             { $sample: { size: 500 } },
+            { $project: {
+                // Specify the fields you want to include in the response
+                eventName: 1,
+                eventDate: 1,
+                eventSummary: 1,
+                bestToAttend: 1,
+                eventBrief: 1,
+                foodAndTraditions: 1,
+                typicalCelebrations: 1,
+                languageCorner: 1,
+                thumb: 1,
+                images: 1,
+                geolocation: 1,
+                externalSources: 1,
+                eventType: "$eventType.categoryName",
+                distance: 1
+            }}
         ];
 
         if (req.query.eventType) {
