@@ -354,7 +354,7 @@ const getAllEventsMap = async (req, res) => {
     
     try {
         let pipeline = [
-            { $match },
+            { $match: { eventDate, eventType } },
             { $sample: { size: 500 } },
             { $geoNear: {
                 near: { type: "Point", coordinates: userCoordinates },
