@@ -9,7 +9,7 @@ router.route('/').post(createEvent);
 
 //MobileRoutes
 router.route('/nearby').post(getAllEventsMobile);
-router.route('/search').post(getAllEventsMap);
+router.route('/search/').post(getAllEventsMap);
 
 
 router.route('/:id').get(getEventDetails);
