@@ -365,29 +365,30 @@ const getAllEventsMap = async (req, res) => {
                 distanceField: "distance",
                 spherical: true
             }},
-            { $lookup: {
-                from: "eventcategories", // This should be the name of the EventCategory collection in MongoDB
-                localField: "eventType",
-                foreignField: "_id",
-                as: "eventType"
-            }},
-            { $project: {
-                // Specify the fields you want to include in the response
-                eventName: 1,
-                eventDate: 1,
-                eventSummary: 1,
-                bestToAttend: 1,
-                eventBrief: 1,
-                foodAndTraditions: 1,
-                typicalCelebrations: 1,
-                languageCorner: 1,
-                thumb: 1,
-                images: 1,
-                geolocation: 1,
-                externalSources: 1,
-                eventType: "$eventType.categoryName",
-                distance: 1
-            }},
+                    //DO NOT ADD LOOKUPS TO THE PIPELINE THIS BREAKS THE APP
+            // { $lookup: {
+            //     from: "eventcategories", // This should be the name of the EventCategory collection in MongoDB
+            //     localField: "eventType",
+            //     foreignField: "_id",
+            //     as: "eventType"
+            // }},
+            // { $project: {
+            //     // Specify the fields you want to include in the response
+            //     eventName: 1,
+            //     eventDate: 1,
+            //     eventSummary: 1,
+            //     bestToAttend: 1,
+            //     eventBrief: 1,
+            //     foodAndTraditions: 1,
+            //     typicalCelebrations: 1,
+            //     languageCorner: 1,
+            //     thumb: 1,
+            //     images: 1,
+            //     geolocation: 1,
+            //     externalSources: 1,
+            //     eventType: "$eventType.categoryName",
+            //     distance: 1
+            // }},
             { $sample: { size: 500 } },
         ];
 
@@ -409,7 +410,15 @@ const getAllEventsMap = async (req, res) => {
             pipeline.push({ $match: { eventDate: dateMatch } });
         }
 
-        const filteredEvents = await Event.aggregate(pipeline)
+        const events = await Event.aggregate(pipeline)
+
+        const filteredEvents = events.map(event => {
+            return {
+                ...event, 
+                eventType: event.eventType.categoryName
+            };
+        });
+
         res.json(filteredEvents);
     } catch (error) {
         console.error("Error in getAllEventsMap:", error);
