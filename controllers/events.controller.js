@@ -372,23 +372,6 @@ const getAllEventsMap = async (req, res) => {
             { $sample: { size: 500 } },
         ];
 
-
-        // if (req.query.eventType) {
-        //     const eventTypeId = new mongoose.Types.ObjectId(req.body.eventType);
-        //     pipeline.unshift({ $match: { eventType: eventTypeId } });
-        // }
-
-        // if (req.query.startDate || req.query.endDate) {
-        //     let dateMatch = {};
-        //     if (req.query.startDate) {
-        //         dateMatch.$gte = Date(req.query.startDate);
-        //     }
-        //     if (req.query.endDate) {
-        //         dateMatch.$lte = Date(req.query.endDate);
-        //     }
-        //     pipeline.unshift({ $match: { eventDate: dateMatch } });
-        // }
-
         if (req.query.eventType) {
             const eventTypeId = new mongoose.Types.ObjectId(req.query.eventType);
             pipeline.push({ $match: { eventType: eventTypeId } });
@@ -401,13 +384,17 @@ const getAllEventsMap = async (req, res) => {
         if (req.query.endDate) {
             dateMatch.$lte = new Date(req.query.endDate);
         }
-        
+
         // Add the dateMatch to the pipeline only if there are date filters
         if (Object.keys(dateMatch).length) {
             pipeline.push({ $match: { eventDate: dateMatch } });
         }
 
-        const filteredEvents = await Event.aggregate(pipeline);
+        const filteredEvents = await Event.aggregate(pipeline)
+                                            .populate({
+                                                path: 'eventType',
+                                                select: 'categoryName'
+                                            });
         res.json(filteredEvents);
     } catch (error) {
         console.error("Error in getAllVehiclesMobile:", error);
