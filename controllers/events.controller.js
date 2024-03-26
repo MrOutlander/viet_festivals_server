@@ -353,35 +353,35 @@ const getAllEventsMap = async (req, res) => {
     // } 
     
     try {
-        // Validate request body for latitude and longitude
         if (!req.body.latitude || !req.body.longitude) {
             return res.status(400).json({ message: "Missing latitude or longitude in request body" });
         }
 
-        const currentDate = new Date();
-        currentDate.setHours(0, 0, 0, 0); // Set to the start of the current day
-
-        const userCoordinates = [req.body.longitude, req.body.latitude];
-
-        const events = await Event.aggregate([
+        // Base match criteria for events, starting with a broad filter for date
+        let startDate = new Date();
+        startDate.setHours(0, 0, 0, 0); // Resets to start of the current day
+        
+        let endDate = req.body.endDate ? new Date(req.body.endDate) : null;
+        if (endDate) {
+            endDate.setHours(23, 59, 59, 999); // Adjusts to end of the specified day
+        }
+        
+        let pipeline = [
             {
                 $geoNear: {
-                    near: { type: "Point", coordinates: userCoordinates },
+                    near: { type: "Point", coordinates: [req.body.longitude, req.body.latitude] },
                     distanceField: "distance",
                     spherical: true
                 }
             },
             {
                 $match: {
-                    eventDate: { $gte: currentDate }
+                    eventDate: { $gte: startDate, ...(endDate && {$lte: endDate}) },
                 }
             },
             {
-                $sort: { distance: 1, eventDate: 1 } // Sort by distance first, then by date
-            },
-            {
                 $lookup: {
-                    from: "eventcategories", // This should be the name of the EventCategory collection in MongoDB
+                    from: "eventcategories",
                     localField: "eventType",
                     foreignField: "_id",
                     as: "eventType"
@@ -392,7 +392,6 @@ const getAllEventsMap = async (req, res) => {
             },
             {
                 $project: {
-                    // Include fields you want to send in the response
                     eventName: 1,
                     eventDate: 1,
                     eventSummary: 1,
@@ -410,18 +409,25 @@ const getAllEventsMap = async (req, res) => {
                 }
             },
             {
-                $sort: { distance: 1 } // Sort by distance ascending (closest first)
+                $sort: { distance: 1 }
             }
-        ]);
+        ];
+
+        // Conditionally apply eventType filter
+        if (req.body.eventType) {
+            const eventType = new mongoose.Types.ObjectId(req.body.eventType);
+            pipeline.splice(1, 0, { $match: { eventType: eventType } });
+        }
+
+        const events = await Event.aggregate(pipeline);
 
         res.status(200).json(events);
     } catch (error) {
-        console.error("Error in getAllEventsMobile:", error);
-        // Send more detailed error information for debugging
+        console.error("Error in getAllEventsMap:", error);
         res.status(500).json({
             message: "Error fetching events",
             error: error.message,
-            stack: error.stack // Include stack trace for deeper insight
+            stack: error.stack
         });
     }
 };
