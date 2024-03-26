@@ -353,82 +353,45 @@ const getAllEventsMap = async (req, res) => {
     // } 
     
     try {
+        let pipeline = [
+            { $match },
+            { $sample: { size: 500 } },
+            { $geoNear: {
+                near: { type: "Point", coordinates: userCoordinates },
+                distanceField: "distance",
+                spherical: true
+            }}
+        ];
+
         if (!req.body.latitude || !req.body.longitude) {
             return res.status(400).json({ message: "Missing latitude or longitude in request body" });
         }
 
-        // Base match criteria for events, starting with a broad filter for date
-        let startDate = new Date();
-        startDate.setHours(0, 0, 0, 0); // Resets to start of the current day
-        
-        let endDate = req.body.endDate ? new Date(req.body.endDate) : null;
-        if (endDate) {
-            endDate.setHours(23, 59, 59, 999); // Adjusts to end of the specified day
+        // const currentDate = new Date();
+        // currentDate.setHours(0, 0, 0, 0); // Set to the start of the current day
+
+        const userCoordinates = [req.body.longitude, req.body.latitude];
+
+        if (req.query.eventType) {
+            const eventTypeId = new mongoose.Types.ObjectId(req.body.eventType);
+            pipeline.unshift({ $match: { eventType: eventTypeId } });
         }
-        
-        let pipeline = [
-            {
-                $geoNear: {
-                    near: { type: "Point", coordinates: [req.body.longitude, req.body.latitude] },
-                    distanceField: "distance",
-                    spherical: true
-                }
-            },
-            {
-                $match: {
-                    eventDate: { $gte: startDate, ...(endDate && {$lte: endDate}) },
-                }
-            },
-            {
-                $lookup: {
-                    from: "eventcategories",
-                    localField: "eventType",
-                    foreignField: "_id",
-                    as: "eventType"
-                }
-            },
-            {
-                $unwind: "$eventType"
-            },
-            {
-                $project: {
-                    eventName: 1,
-                    eventDate: 1,
-                    eventSummary: 1,
-                    bestToAttend: 1,
-                    eventBrief: 1,
-                    foodAndTraditions: 1,
-                    typicalCelebrations: 1,
-                    languageCorner: 1,
-                    thumb: 1,
-                    images: 1,
-                    geolocation: 1,
-                    externalSources: 1,
-                    eventType: "$eventType.categoryName",
-                    distance: 1
-                }
-            },
-            {
-                $sort: { distance: 1 }
+
+        if (req.query.startDate || req.query.endDate) {
+            let dateMatch = {};
+            if (req.query.startDate) {
+                dateMatch.$gte = Date(req.query.startDate);
             }
-        ];
-
-        // Conditionally apply eventType filter
-        if (req.body.eventType) {
-            const eventType = new mongoose.Types.ObjectId(req.body.eventType);
-            pipeline.splice(1, 0, { $match: { eventType: eventType } });
+            if (req.query.endDate) {
+                dateMatch.$lte = Date(req.query.endDate);
+            }
+            pipeline.unshift({ $match: { eventDate: dateMatch } });
         }
 
-        const events = await Event.aggregate(pipeline);
-
-        res.status(200).json(events);
+        const filteredEvents = await Event.aggregate(pipeline);
+        res.json(filteredEvents);
     } catch (error) {
-        console.error("Error in getAllEventsMap:", error);
-        res.status(500).json({
-            message: "Error fetching events",
-            error: error.message,
-            stack: error.stack
-        });
+        
     }
 };
 
