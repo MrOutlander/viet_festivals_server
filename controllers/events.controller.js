@@ -353,16 +353,6 @@ const getAllEventsMap = async (req, res) => {
     // } 
     
     try {
-        let pipeline = [
-            { $geoNear: {
-                near: { type: "Point", coordinates: userCoordinates },
-                distanceField: "distance",
-                spherical: true
-            }},
-            { $match: { eventDate, eventType } },
-            { $sample: { size: 500 } },
-        ];
-
         if (!req.body.latitude || !req.body.longitude) {
             return res.status(400).json({ message: "Missing latitude or longitude in request body" });
         }
@@ -372,26 +362,56 @@ const getAllEventsMap = async (req, res) => {
 
         const userCoordinates = [req.body.longitude, req.body.latitude];
 
+        let pipeline = [
+            { $geoNear: {
+                near: { type: "Point", coordinates: userCoordinates },
+                distanceField: "distance",
+                spherical: true
+            }},
+            // { $match: { eventDate, eventType } },
+            { $sample: { size: 500 } },
+        ];
+
+
+        // if (req.query.eventType) {
+        //     const eventTypeId = new mongoose.Types.ObjectId(req.body.eventType);
+        //     pipeline.unshift({ $match: { eventType: eventTypeId } });
+        // }
+
+        // if (req.query.startDate || req.query.endDate) {
+        //     let dateMatch = {};
+        //     if (req.query.startDate) {
+        //         dateMatch.$gte = Date(req.query.startDate);
+        //     }
+        //     if (req.query.endDate) {
+        //         dateMatch.$lte = Date(req.query.endDate);
+        //     }
+        //     pipeline.unshift({ $match: { eventDate: dateMatch } });
+        // }
+
         if (req.query.eventType) {
-            const eventTypeId = new mongoose.Types.ObjectId(req.body.eventType);
-            pipeline.unshift({ $match: { eventType: eventTypeId } });
+            const eventTypeId = new mongoose.Types.ObjectId(req.query.eventType);
+            pipeline.push({ $match: { eventType: eventTypeId } });
         }
 
-        if (req.query.startDate || req.query.endDate) {
-            let dateMatch = {};
-            if (req.query.startDate) {
-                dateMatch.$gte = Date(req.query.startDate);
-            }
-            if (req.query.endDate) {
-                dateMatch.$lte = Date(req.query.endDate);
-            }
-            pipeline.unshift({ $match: { eventDate: dateMatch } });
+        let dateMatch = {};
+        if (req.query.startDate) {
+            dateMatch.$gte = new Date(req.query.startDate);
+        }
+        if (req.query.endDate) {
+            dateMatch.$lte = new Date(req.query.endDate);
+        }
+        
+        // Add the dateMatch to the pipeline only if there are date filters
+        if (Object.keys(dateMatch).length) {
+            pipeline.push({ $match: { eventDate: dateMatch } });
         }
 
         const filteredEvents = await Event.aggregate(pipeline);
         res.json(filteredEvents);
     } catch (error) {
-        
+        console.error("Error in getAllVehiclesMobile:", error);
+        res.status(500).json({ message: error.message });
     }
 };
 
