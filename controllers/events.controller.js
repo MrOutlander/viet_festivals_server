@@ -365,7 +365,12 @@ const getAllEventsMap = async (req, res) => {
                 distanceField: "distance",
                 spherical: true
             }},
-            { $sample: { size: 500 } },
+            { $lookup: {
+                from: "eventcategories", // This should be the name of the EventCategory collection in MongoDB
+                localField: "eventType",
+                foreignField: "_id",
+                as: "eventType"
+            }},
             { $project: {
                 // Specify the fields you want to include in the response
                 eventName: 1,
@@ -382,7 +387,8 @@ const getAllEventsMap = async (req, res) => {
                 externalSources: 1,
                 eventType: "$eventType.categoryName",
                 distance: 1
-            }}
+            }},
+            { $sample: { size: 500 } },
         ];
 
         if (req.query.eventType) {
@@ -406,7 +412,7 @@ const getAllEventsMap = async (req, res) => {
         const filteredEvents = await Event.aggregate(pipeline)
         res.json(filteredEvents);
     } catch (error) {
-        console.error("Error in getAllVehiclesMobile:", error);
+        console.error("Error in getAllEventsMap:", error);
         res.status(500).json({ message: error.message });
     }
 };
