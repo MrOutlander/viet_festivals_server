@@ -357,9 +357,6 @@ const getAllEventsMap = async (req, res) => {
             return res.status(400).json({ message: "Missing latitude or longitude in request body" });
         }
 
-        // const currentDate = new Date();
-        // currentDate.setHours(0, 0, 0, 0); // Set to the start of the current day
-
         const userCoordinates = [req.body.longitude, req.body.latitude];
 
         let pipeline = [
@@ -391,10 +388,6 @@ const getAllEventsMap = async (req, res) => {
         }
 
         const filteredEvents = await Event.aggregate(pipeline)
-                                            .populate({
-                                                path: 'eventType',
-                                                select: 'categoryName'
-                                            });
         res.json(filteredEvents);
     } catch (error) {
         console.error("Error in getAllVehiclesMobile:", error);
