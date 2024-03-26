@@ -354,13 +354,13 @@ const getAllEventsMap = async (req, res) => {
     
     try {
         let pipeline = [
-            { $match: { eventDate, eventType } },
-            { $sample: { size: 500 } },
             { $geoNear: {
                 near: { type: "Point", coordinates: userCoordinates },
                 distanceField: "distance",
                 spherical: true
-            }}
+            }},
+            { $match: { eventDate, eventType } },
+            { $sample: { size: 500 } },
         ];
 
         if (!req.body.latitude || !req.body.longitude) {
